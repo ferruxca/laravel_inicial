@@ -18,14 +18,28 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
         ]);
 
-        // Creamos el usuario
-        $user = User::factory()->create([
+        // Creamos tres usuarios        
+        $admin = User::factory()->create([
             'name' => 'Super Admin',
             'email' => 'super-admin@admin.com',
             'password' => '12345678',
         ]);
 
-        // Asignamos el rol al usuario
-        $user->assignRole('admin');
+        $editor = User::factory()->create([
+            'name' => 'Editor',
+            'email' => 'editor@editor.com',
+            'password' => '12345678',
+        ]);
+
+        $user = User::factory()->create([
+            'name' => 'User',
+            'email' => 'user@user.com',
+            'password' => '12345678',
+        ]);
+
+        // Asignamos roles a los usuarios
+        $admin->assignRole('admin');
+        $editor->assignRole('editor');
+        $user->assignRole('user');
     }
 }

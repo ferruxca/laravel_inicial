@@ -52,7 +52,12 @@
         </header>
         <div class="flex items-center justify-center w-full transition-opacity opacity-100 duration-750 lg:grow starting:opacity-0">
             <main class="flex max-w-[335px] w-full flex-col-reverse lg:max-w-4xl lg:flex-row">
-                <h1>Bienvenidos a la app</h1>
+                @auth
+                    <p>Puedes entrar al Dashboard, solo visible para usuarios <strong>autenticados</strong></p>
+                @endauth
+                @guest
+                    <p>Bienvenidos, solo visible para usuarios <strong>no autenticados</strong></p>
+                @endguest
             </main>
         </div>
 
