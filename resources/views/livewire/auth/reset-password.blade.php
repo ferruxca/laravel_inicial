@@ -3,6 +3,7 @@
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rules\Password as Psw;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
@@ -35,7 +36,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $this->validate([
             'token' => ['required'],
             'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Psw::min(8)
+            ->mixedCase()
+            ->numbers()
+            ->symbols()
+            ->uncompromised()],
         ]);
 
         // Here we will attempt to reset the user's password. If it is successful we
@@ -93,6 +98,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
             autocomplete="new-password"
             :placeholder="__('Password')"
             viewable
+            :min="8"
+            :max="50"
         />
 
         <!-- Confirm Password -->
@@ -104,6 +111,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
             autocomplete="new-password"
             :placeholder="__('Confirm password')"
             viewable
+            :min="8"
+            :max="50"
         />
 
         <div class="flex items-center justify-end">

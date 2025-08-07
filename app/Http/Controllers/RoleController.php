@@ -24,7 +24,7 @@ class RoleController extends Controller
         $permissions = Permission::orderBy('name')->paginate(10);
         //$permissions = Permission::all()->groupBy('group');
         
-        return view('roles.index', compact('roles', 'permissions'));
+        return view('pages.roles.index', compact('roles', 'permissions'));
     }
 
     /**
@@ -38,7 +38,7 @@ class RoleController extends Controller
         
         $permissions = Permission::all()->groupBy('group');
         
-        return view('roles.create', compact('permissions'));
+        return view('pages.roles.create', compact('permissions'));
     }
 
     /**
@@ -84,7 +84,7 @@ class RoleController extends Controller
         
         $permissions = Permission::all()->groupBy('group');
         
-        return view('roles.edit', compact('role', 'permissions'));
+        return view('pages.roles.edit', compact('role', 'permissions'));
     }
 
     /**

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
+use Illuminate\Validation\Rules\Password as Psw;
 
 new #[Layout('components.layouts.auth')] class extends Component {
     public string $name = '';
@@ -22,7 +23,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Psw::min(8)
+            ->mixedCase()
+            ->numbers()
+            ->symbols()
+            ->uncompromised()],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -75,6 +80,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
             autocomplete="new-password"
             :placeholder="__('Password')"
             viewable
+            :min="8"
+            :max="50"
         />
 
         <!-- Confirm Password -->
@@ -86,6 +93,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
             autocomplete="new-password"
             :placeholder="__('Confirm password')"
             viewable
+            :min="8"
+            :max="50"
         />
 
         <div class="flex items-center justify-end">

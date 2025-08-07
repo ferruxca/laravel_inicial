@@ -349,5 +349,7 @@
     "User Password": "Contraseña del usuario",
     "User Confirmation Password": "Confirmación de contraseña del usuario",
     "Update the user details": "Actualizar los detalles del usuario",
-    "Edit User": "Editar usuario"
+    "Edit User": "Editar usuario",
+    "Verified": "Verificado",
+    "Not Verified": "No verificado"
 }

@@ -5,17 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\Models\Role;
 
 class PermissionController extends Controller
 {
 
-    /**
-     * Display a listing of permissions.
-     *
-     * @return \Illuminate\View\View
-     */
     public function index()
     {
         if (!auth()->user()->can('permission.index')) {
@@ -25,34 +19,23 @@ class PermissionController extends Controller
         $permissions = Permission::orderBy('name')
             ->paginate(10);
 
-        return view('permissions.index', [
+        return view('pages.permissions.index', [
             'permissions' => $permissions,
             //'groups' => Permission::distinct()->pluck('group')
         ]);
     }
 
-    /**
-     * Show the form for creating a new permission.
-     *
-     * @return \Illuminate\View\View
-     */
     public function create()
     {
         if (!auth()->user()->can('permission.create')) {
             abort(403);
         }
         
-        return view('permissions.create', [
+        return view('pages.permissions.create', [
             //'groups' => Permission::distinct()->pluck('group')
         ]);
     }
 
-    /**
-     * Store a newly created permission in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function store(Request $request)
     {
         if (!auth()->user()->can('permission.create')) {
@@ -87,31 +70,18 @@ class PermissionController extends Controller
             ->with('success', __('Permission created successfully.'));
     }
 
-    /**
-     * Show the form for editing the specified permission.
-     *
-     * @param  Permission  $permission
-     * @return \Illuminate\View\View
-     */
     public function edit(Permission $permission)
     {
         if (!auth()->user()->can('permission.edit')) {
             abort(403);
         }
 
-        return view('permissions.edit', [
+        return view('pages.permissions.edit', [
             'permission' => $permission,
             //'groups' => Permission::distinct()->pluck('group')
         ]);
     }
 
-    /**
-     * Update the specified permission in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  Permission  $permission
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function update(Request $request, Permission $permission)
     {
         if (!auth()->user()->can('permission.edit')) {
@@ -141,12 +111,6 @@ class PermissionController extends Controller
             ->with('success', __('Permission updated successfully.'));
     }
 
-    /**
-     * Remove the specified permission from storage.
-     *
-     * @param  Permission  $permission
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function destroy(Permission $permission)
     {
         if (!auth()->user()->can('permission.delete')) {

@@ -71,6 +71,9 @@
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 {{ __('Roles') }}
                             </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {{ __('Verified') }}
+                            </th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 {{ __('Actions') }}
                             </th>
@@ -102,6 +105,20 @@
                                         {{ $role }}
                                     </span>
                                 @endforeach
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if ($user->email_verified_at)
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                        {{ __('Verified') }}
+                                    </span> 
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $user->email_verified_at->format('d/m/Y H:i:s') }}
+                                    </span>
+                                @else
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                        {{ __('Not Verified') }}
+                                    </span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-2">
