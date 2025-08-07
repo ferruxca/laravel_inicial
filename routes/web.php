@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,8 +15,13 @@ Route::view('dashboard', 'dashboard')
     ->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Users Routes
+    Route::resource('users', UserController::class)->except(['show']);
+
     // Roles Routes
     Route::resource('roles', RoleController::class)->except(['show']);
+    Route::post('roles/{role}/toggle-permission', [RoleController::class, 'togglePermission'])->name('roles.toggle-permission');
     
     // Permissions Routes
     Route::resource('permissions', PermissionController::class)->except(['show']);

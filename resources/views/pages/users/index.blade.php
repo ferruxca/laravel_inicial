@@ -1,4 +1,4 @@
-<x-layouts.app :title="__('Permissions Management')">
+<x-layouts.app :title="__('Users Management')">
     <div class="container mx-auto px-4 py-8">
         <!-- Encabezado con breadcrumbs y título -->
         <div class="mb-6">
@@ -17,7 +17,7 @@
                             <svg class="w-3 h-3 mx-1 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
                             </svg>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Permisos</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Usuarios</span>
                         </div>
                     </li>
                 </ol>
@@ -25,16 +25,16 @@
 
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                    {{ __('Permissions Management') }}
+                    {{ __('Users Management') }}
                 </h1>
                 
-                @can('permission.create')
-                <a href="{{ route('permissions.create') }}" 
+                @can('user.create')
+                <a href="{{ route('users.create') }}" 
                    class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
                     </svg>
-                    {{ __('New Permission') }}
+                    {{ __('New User') }}
                 </a>
                 @endcan
             </div>
@@ -45,10 +45,10 @@
             <!-- Header de la tarjeta -->
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                 <h2 class="text-lg font-medium text-gray-900 dark:text-white">
-                    {{ __('Permissions List') }}
+                    {{ __('Users List') }}
                 </h2>
                 <div class="relative">
-                    <input type="text" placeholder="{{ __('Search permissions...') }}" 
+                    <input type="text" placeholder="{{ __('Search users...') }}" 
                            class="pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                            x-data
                            x-on:input.debounce.300ms="$dispatch('search', { search: $event.target.value })">
@@ -66,10 +66,10 @@
                     <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                {{ __('Permission') }}
+                                {{ __('User') }}
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                {{ __('Group') }}
+                                {{ __('Roles') }}
                             </th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 {{ __('Actions') }}
@@ -77,7 +77,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                        @forelse($permissions as $permission)
+                        @forelse($users as $user)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
@@ -88,23 +88,25 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                            {{ $permission->name }}
+                                            {{ $user->name }}
                                         </div>
                                         <div class="text-sm text-gray-500 dark:text-gray-400">
-                                            {{ $permission->created_at->diffForHumans() }}
+                                            {{ $user->email }}
                                         </div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 capitalize">
-                                    {{ $permission->group }}
-                                </span>
+                                @foreach ($user->getRoleNames() as $role)
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 capitalize">
+                                        {{ $role }}
+                                    </span>
+                                @endforeach
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-2">
-                                    @can('permission.edit', $permission)
-                                    <a href="{{ route('permissions.edit', $permission) }}" 
+                                    @can('user.edit', $user)
+                                    <a href="{{ route('users.edit', $user) }}" 
                                        class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1 px-3 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -113,8 +115,9 @@
                                     </a>
                                     @endcan
                                     
-                                    @can('permission.destroy', $permission)
-                                    <form action="{{ route('permissions.destroy', $permission) }}" method="POST" class="inline">
+                                    @can('user.destroy', $user)
+                                    @if($user->id != auth()->user()->id)
+                                    <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" 
@@ -126,6 +129,7 @@
                                             {{ __('Delete') }}
                                         </button>
                                     </form>
+                                    @endif
                                     @endcan
                                 </div>
                             </td>
@@ -137,12 +141,12 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('No permissions found') }}</h3>
-                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('Get started by creating a new permission.') }}</p>
-                                    @can('permission.create')
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('No users found') }}</h3>
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('Get started by creating a new user.') }}</p>
+                                    @can('user.create')
                                     <div class="mt-6">
-                                        <a href="{{ route('permissions.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                            {{ __('New Permission') }}
+                                        <a href="{{ route('users.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                            {{ __('New User') }}
                                         </a>
                                     </div>
                                     @endcan
@@ -155,9 +159,9 @@
             </div>
 
             <!-- Paginación -->
-            @if($permissions->hasPages())
+            @if($users->hasPages())
             <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-                {{ $permissions->links() }}
+                {{ $users->links() }}
             </div>
             @endif
         </div>

@@ -31,6 +31,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         Auth::login($user);
 
+        // Asignar rol al usuario
+        $user->assignRole('user');
+
         $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
     }
 }; ?>

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Models\Role;
 
 class PermissionController extends Controller
 {
@@ -72,11 +73,15 @@ class PermissionController extends Controller
                 ->withInput();
         }
 
-        Permission::create([
+        $permission = Permission::create([
             'name' => $request->name,
             'group' => $request->group,
             'guard_name' => 'web' // Asegurar que se establezca el guard_name
         ]);
+
+        // Asignamos el permiso al rol admin
+        $role = Role::find(1);
+        $role->givePermissionTo($permission);
 
         return redirect()->route('permissions.index')
             ->with('success', __('Permission created successfully.'));

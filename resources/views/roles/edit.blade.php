@@ -4,7 +4,7 @@
             <!-- Encabezado -->
             <div class="flex items-center justify-between mb-6">
                 <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
-                    {{ __('Edit Role: ') }} <span class="text-blue-600">{{ $role->name }}</span>
+                    {{ __('Edit Role') }}: <span class="text-blue-600">{{ $role->name }}</span>
                 </h1>
                 <a href="{{ route('roles.index') }}" 
                    class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300 flex items-center gap-1">
@@ -46,7 +46,6 @@
                         <h2 class="text-lg font-medium text-gray-800 dark:text-white mb-4">
                             {{ __('Current Permissions') }}
                         </h2>
-                        
                         <div class="space-y-6">
                             @foreach($permissions as $group => $groupPermissions)
                             <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
@@ -70,8 +69,23 @@
                         </div>
                     </div>
                     
-                    <!-- Footer del formulario -->
-                    <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex justify-end gap-3">
+                    <!-- Footer del formulario-->
+                    <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex gap-3 justify-between">
+                        <div class="flex justify-end gap-3">
+                        @can('role.destroy', $role)
+                            <form action="{{ route('roles.destroy', $role) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                                        onclick="return confirm('{{ __('Are you sure you want to delete this role?') }}')"
+                                        title="{{ __('Delete Role') }}">
+                                    {{ __('Delete') }}
+                                </button>
+                            </form>
+                        @endcan
+                        </div>
+                        <div class="flex justify-end gap-3">
                         <a href="{{ route('roles.index') }}"
                            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             {{ __('Cancel') }}
@@ -80,6 +94,7 @@
                                 class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             {{ __('Update Role') }}
                         </button>
+                        </div>
                     </div>
                 </form>
             </div>

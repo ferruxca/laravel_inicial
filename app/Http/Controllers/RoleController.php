@@ -20,8 +20,9 @@ class RoleController extends Controller
         }
         
         
-        $roles = Role::with('permissions')->paginate(10);
-        $permissions = Permission::all()->groupBy('group');
+        $roles = Role::with('permissions')->get();
+        $permissions = Permission::orderBy('name')->paginate(10);
+        //$permissions = Permission::all()->groupBy('group');
         
         return view('roles.index', compact('roles', 'permissions'));
     }
@@ -77,7 +78,7 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
-        if (!auth()->user()->can('role.edit')) {
+        if (!auth()->user()->can('role.edit') || $role->name == 'admin') {
             abort(403);
         }
         
@@ -91,7 +92,7 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
-        if (!auth()->user()->can('role.edit')) {
+        if (!auth()->user()->can('role.edit') || $role->name == 'admin') {
             abort(403);
         }
         
@@ -126,7 +127,7 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
-        if (!auth()->user()->can('role.destroy')) {
+        if (!auth()->user()->can('role.destroy') || $role->name == 'admin') {
             abort(403);
         }
         
@@ -134,5 +135,35 @@ class RoleController extends Controller
         
         return redirect()->route('roles.index')
             ->with('success', 'Rol eliminado exitosamente.');
+    }
+
+    /**
+     * Toggle permission for a role via AJAX.
+     */
+    public function togglePermission(Request $request, Role $role)
+    {
+        if (!auth()->user()->can('role.edit') || $role->name == 'admin') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'permission_id' => 'required|exists:permissions,id'
+        ]);
+
+        $permission = Permission::findOrFail($request->permission_id);
+        
+        if ($role->hasPermissionTo($permission->name)) {
+            $role->revokePermissionTo($permission->name);
+            $hasPermission = false;
+        } else {
+            $role->givePermissionTo($permission->name);
+            $hasPermission = true;
+        }
+
+        return response()->json([
+            'success' => true,
+            'hasPermission' => $hasPermission,
+            'message' => $hasPermission ? 'Permiso asignado' : 'Permiso removido'
+        ]);
     }
 }
