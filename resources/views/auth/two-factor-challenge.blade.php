@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -30,77 +31,7 @@
             <form method="POST" action="{{ route('two-factor.store') }}">
                 @csrf
 
-                <div x-data="{ 
-                    recovery: false, 
-                    code: ['', '', '', '', '', ''],
-                    getFullCode() {
-                        return this.code.join('');
-                    },
-                    handleInput(index, event) {
-                        // Keep only digits and take the first one
-                        const digits = (event.target.value || '').replace(/\D/g, '');
-                        if (digits.length === 0) {
-                            this.code[index] = '';
-                            event.target.value = '';
-                            this.$refs.hiddenCode.value = this.getFullCode();
-                            return;
-                        }
-                        const d = digits[0];
-                        this.code[index] = d;
-                        event.target.value = d;
-                        // Auto-advance
-                        if (index < 5) {
-                            this.$nextTick(() => this.$refs['digit' + (index + 1)].focus());
-                        }
-                        // Update hidden input
-                        this.$refs.hiddenCode.value = this.getFullCode();
-                    },
-                    handleKeydown(index, event) {
-                        // Only allow numbers, backspace, delete, tab, and arrow keys
-                        const allowedKeys = ['0','1','2','3','4','5','6','7','8','9','Backspace','Delete','Tab','ArrowLeft','ArrowRight'];
-                        
-                        if (!allowedKeys.includes(event.key)) {
-                            event.preventDefault();
-                            return;
-                        }
-                        
-                        // Handle backspace navigation - move to previous field when current is empty OR after deleting
-                        if (event.key === 'Backspace') {
-                            if (!this.code[index] && index > 0) {
-                                // Current field is empty, move to previous
-                                this.$nextTick(() => {
-                                    this.$refs['digit' + (index - 1)].focus();
-                                });
-                            } else if (this.code[index] && index > 0) {
-                                // Current field has content, clear it and move to previous
-                                this.code[index] = '';
-                                event.target.value = '';
-                                this.$refs.hiddenCode.value = this.getFullCode();
-                                this.$nextTick(() => {
-                                    this.$refs['digit' + (index - 1)].focus();
-                                });
-                                event.preventDefault(); // Prevent default backspace behavior
-                            }
-                        }
-                    },
-                    handlePaste(index, event) {
-                        event.preventDefault();
-                        const paste = (event.clipboardData || window.clipboardData).getData('text');
-                        const digits = paste.replace(/[^0-9]/g, '').slice(0, 6);
-                        
-                        for (let i = 0; i < digits.length && (index + i) < 6; i++) {
-                            this.code[index + i] = digits[i];
-                            this.$refs['digit' + (index + i)].value = digits[i];
-                        }
-                        
-                        // Focus the next empty field or the last field
-                        const nextIndex = Math.min(index + digits.length, 5);
-                        this.$refs['digit' + nextIndex].focus();
-                        
-                        // Update hidden input
-                        this.$refs.hiddenCode.value = this.getFullCode();
-                    }
-                }">
+                <div x-data="twoFactorAuth()">
                     <div class="mt-4" x-show="! recovery">
                         <label class="block font-medium text-sm text-gray-700 dark:text-gray-300 mb-3">{{ __('Code') }}</label>
                         
@@ -209,7 +140,7 @@
                         <!-- Hidden input for form submission -->
                         <input type="hidden" name="code" x-ref="hiddenCode" :value="getFullCode()" />
                         
-                        @error('code')
+                        @error('code_error')
                             <p class="text-sm text-red-600 dark:text-red-400 mt-2 text-center">{{ $message }}</p>
                         @enderror
                     </div>
@@ -236,7 +167,7 @@
                                             x-show="recovery"
                                             x-on:click="
                                                 recovery = false;
-                                                $nextTick(() => { $refs.code.focus() })
+                                                $nextTick(() => { $refs.digit0.focus() })
                                             ">
                             {{ __('Use an authentication code') }}
                         </button>
@@ -249,5 +180,88 @@
             </form>
         </div>
     </div>
+
+    <script>
+        // Verifica si Alpine ya está cargado
+        function initializeTwoFactorAuth() {
+            // Si Alpine está disponible, registra el componente
+            if (window.Alpine) {
+                Alpine.data('twoFactorAuth', function() {
+                    return {
+                        recovery: false,
+                        code: ['', '', '', '', '', ''],
+                        getFullCode() {
+                            return this.code.join('');
+                        },
+                        handleInput(index, event) {
+                            const digits = (event.target.value || '').replace(/\D/g, '');
+                            if (digits.length === 0) {
+                                this.code[index] = '';
+                                event.target.value = '';
+                                this.$refs.hiddenCode.value = this.getFullCode();
+                                return;
+                            }
+                            const d = digits[0];
+                            this.code[index] = d;
+                            event.target.value = d;
+                            if (index < 5) {
+                                this.$nextTick(() => this.$refs['digit' + (index + 1)].focus());
+                            }
+                            this.$refs.hiddenCode.value = this.getFullCode();
+                        },
+                        handleKeydown(index, event) {
+                            const allowedKeys = ['0','1','2','3','4','5','6','7','8','9','Backspace','Delete','Tab','ArrowLeft','ArrowRight'];
+                            
+                            if (!allowedKeys.includes(event.key)) {
+                                event.preventDefault();
+                                return;
+                            }
+                            
+                            if (event.key === 'Backspace') {
+                                if (!this.code[index] && index > 0) {
+                                    this.$nextTick(() => {
+                                        this.$refs['digit' + (index - 1)].focus();
+                                    });
+                                } else if (this.code[index] && index > 0) {
+                                    this.code[index] = '';
+                                    event.target.value = '';
+                                    this.$refs.hiddenCode.value = this.getFullCode();
+                                    this.$nextTick(() => {
+                                        this.$refs['digit' + (index - 1)].focus();
+                                    });
+                                    event.preventDefault();
+                                }
+                            }
+                        },
+                        handlePaste(index, event) {
+                            event.preventDefault();
+                            const paste = (event.clipboardData || window.clipboardData).getData('text');
+                            const digits = paste.replace(/[^0-9]/g, '').slice(0, 6);
+                            
+                            for (let i = 0; i < digits.length && (index + i) < 6; i++) {
+                                this.code[index + i] = digits[i];
+                                this.$refs['digit' + (index + i)].value = digits[i];
+                            }
+                            
+                            const nextIndex = Math.min(index + digits.length, 5);
+                            this.$refs['digit' + nextIndex].focus();
+                            this.$refs.hiddenCode.value = this.getFullCode();
+                        }
+                    };
+                });
+            } else {
+                // Si Alpine no está disponible, espera a que el DOM esté listo
+                document.addEventListener('DOMContentLoaded', function() {
+                    initializeTwoFactorAuth();
+                });
+            }
+        }
+    
+        // Intenta inicializar inmediatamente
+        initializeTwoFactorAuth();
+    
+        // También escucha el evento alpine:init por si Alpine se carga después
+        document.addEventListener('alpine:init', initializeTwoFactorAuth);
+    </script>
 </body>
 </html>

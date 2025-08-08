@@ -44,7 +44,7 @@ class TwoFactorController extends Controller
         }
 
         throw ValidationException::withMessages([
-            'code' => [__('The provided two factor authentication code was invalid.')],
+            'code_error' => [__('The provided two factor authentication code was invalid.')],
         ]);
     }
 }
