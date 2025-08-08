@@ -5,16 +5,16 @@ use Livewire\Volt\Volt;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TwoFactorController;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified', 'two-factor'])
-    ->name('dashboard');
 
 Route::middleware(['auth', 'verified', 'two-factor'])->group(function () {
+    // Dashboard Routes
+    Route::view('dashboard', 'dashboard')->name('dashboard');
 
     // Users Routes
     Route::resource('users', UserController::class)->except(['show']);
@@ -26,13 +26,11 @@ Route::middleware(['auth', 'verified', 'two-factor'])->group(function () {
     Route::get('roles/search', [RoleController::class, 'search'])->name('roles.search');
     // Permissions Routes
     Route::resource('permissions', PermissionController::class)->except(['show']);
-});
 
-Route::middleware(['auth'])->group(function () {
     // Two Factor Authentication Routes
-    Route::get('two-factor-challenge', [App\Http\Controllers\TwoFactorController::class, 'create'])
+    Route::get('two-factor-challenge', [TwoFactorController::class, 'create'])
         ->name('two-factor.challenge');
-    Route::post('two-factor-challenge', [App\Http\Controllers\TwoFactorController::class, 'store'])
+    Route::post('two-factor-challenge', [TwoFactorController::class, 'store'])
         ->name('two-factor.store');
     
     Route::redirect('settings', 'settings/profile');

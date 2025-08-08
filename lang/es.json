@@ -384,5 +384,6 @@
     "Please confirm access to your account by entering the authentication code provided by your authenticator application.": "Por favor confirma el acceso a tu cuenta ingresando el código de autenticación proporcionado por tu aplicación de autenticación.",
     "Use a recovery code": "Usar un código de recuperación",
     "Use an authentication code": "Usar un código de autenticación",
-    "Recovery Code": "Código de Recuperación"
+    "Recovery Code": "Código de Recuperación",
+    "Code": "Código"
 }

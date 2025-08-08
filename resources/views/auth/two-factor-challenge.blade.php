@@ -30,12 +30,187 @@
             <form method="POST" action="{{ route('two-factor.store') }}">
                 @csrf
 
-                <div x-data="{ recovery: false }">
+                <div x-data="{ 
+                    recovery: false, 
+                    code: ['', '', '', '', '', ''],
+                    getFullCode() {
+                        return this.code.join('');
+                    },
+                    handleInput(index, event) {
+                        // Keep only digits and take the first one
+                        const digits = (event.target.value || '').replace(/\D/g, '');
+                        if (digits.length === 0) {
+                            this.code[index] = '';
+                            event.target.value = '';
+                            this.$refs.hiddenCode.value = this.getFullCode();
+                            return;
+                        }
+                        const d = digits[0];
+                        this.code[index] = d;
+                        event.target.value = d;
+                        // Auto-advance
+                        if (index < 5) {
+                            this.$nextTick(() => this.$refs['digit' + (index + 1)].focus());
+                        }
+                        // Update hidden input
+                        this.$refs.hiddenCode.value = this.getFullCode();
+                    },
+                    handleKeydown(index, event) {
+                        // Only allow numbers, backspace, delete, tab, and arrow keys
+                        const allowedKeys = ['0','1','2','3','4','5','6','7','8','9','Backspace','Delete','Tab','ArrowLeft','ArrowRight'];
+                        
+                        if (!allowedKeys.includes(event.key)) {
+                            event.preventDefault();
+                            return;
+                        }
+                        
+                        // Handle backspace navigation - move to previous field when current is empty OR after deleting
+                        if (event.key === 'Backspace') {
+                            if (!this.code[index] && index > 0) {
+                                // Current field is empty, move to previous
+                                this.$nextTick(() => {
+                                    this.$refs['digit' + (index - 1)].focus();
+                                });
+                            } else if (this.code[index] && index > 0) {
+                                // Current field has content, clear it and move to previous
+                                this.code[index] = '';
+                                event.target.value = '';
+                                this.$refs.hiddenCode.value = this.getFullCode();
+                                this.$nextTick(() => {
+                                    this.$refs['digit' + (index - 1)].focus();
+                                });
+                                event.preventDefault(); // Prevent default backspace behavior
+                            }
+                        }
+                    },
+                    handlePaste(index, event) {
+                        event.preventDefault();
+                        const paste = (event.clipboardData || window.clipboardData).getData('text');
+                        const digits = paste.replace(/[^0-9]/g, '').slice(0, 6);
+                        
+                        for (let i = 0; i < digits.length && (index + i) < 6; i++) {
+                            this.code[index + i] = digits[i];
+                            this.$refs['digit' + (index + i)].value = digits[i];
+                        }
+                        
+                        // Focus the next empty field or the last field
+                        const nextIndex = Math.min(index + digits.length, 5);
+                        this.$refs['digit' + nextIndex].focus();
+                        
+                        // Update hidden input
+                        this.$refs.hiddenCode.value = this.getFullCode();
+                    }
+                }">
                     <div class="mt-4" x-show="! recovery">
-                        <label for="code" class="block font-medium text-sm text-gray-700 dark:text-gray-300">{{ __('Code') }}</label>
-                        <input id="code" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm block mt-1 w-full" type="text" inputmode="numeric" name="code" autofocus x-ref="code" autocomplete="one-time-code" />
+                        <label class="block font-medium text-sm text-gray-700 dark:text-gray-300 mb-3">{{ __('Code') }}</label>
+                        
+                        <!-- 6 separate input boxes -->
+                        <div class="flex space-x-2 justify-center">
+                            <input 
+                                x-ref="digit0"
+                                x-model="code[0]"
+                                @input="handleInput(0, $event)"
+                                @keydown="handleKeydown(0, $event)"
+                                @paste="handlePaste(0, $event)"
+                                @keyup="handleInput(0, $event)"
+                                type="tel" 
+                                inputmode="numeric" 
+                                pattern="[0-9]*"
+                                autocomplete="one-time-code"
+                                maxlength="1"
+                                class="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:outline-none transition-colors"
+                                :class="{ 'border-indigo-500 dark:border-indigo-400': code[0] }"
+                                autocomplete="off"
+                                autofocus
+                            />
+                            <input 
+                                x-ref="digit1"
+                                x-model="code[1]"
+                                @input="handleInput(1, $event)"
+                                @keydown="handleKeydown(1, $event)"
+                                @paste="handlePaste(1, $event)"
+                                @keyup="handleInput(1, $event)"
+                                type="tel" 
+                                inputmode="numeric" 
+                                pattern="[0-9]*"
+                                autocomplete="one-time-code"
+                                maxlength="1"
+                                class="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:outline-none transition-colors"
+                                :class="{ 'border-indigo-500 dark:border-indigo-400': code[1] }"
+                                autocomplete="off"
+                            />
+                            <input 
+                                x-ref="digit2"
+                                x-model="code[2]"
+                                @input="handleInput(2, $event)"
+                                @keydown="handleKeydown(2, $event)"
+                                @paste="handlePaste(2, $event)"
+                                @keyup="handleInput(2, $event)"
+                                type="tel" 
+                                inputmode="numeric" 
+                                pattern="[0-9]*"
+                                autocomplete="one-time-code"
+                                maxlength="1"
+                                class="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:outline-none transition-colors"
+                                :class="{ 'border-indigo-500 dark:border-indigo-400': code[2] }"
+                                autocomplete="off"
+                            />
+                            <span class="text-lg font-semibold text-gray-600 dark:text-gray-400">-</span>
+                            <input 
+                                x-ref="digit3"
+                                x-model="code[3]"
+                                @input="handleInput(3, $event)"
+                                @keydown="handleKeydown(3, $event)"
+                                @paste="handlePaste(3, $event)"
+                                @keyup="handleInput(3, $event)"
+                                type="tel" 
+                                inputmode="numeric" 
+                                pattern="[0-9]*"
+                                autocomplete="one-time-code"
+                                maxlength="1"
+                                class="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:outline-none transition-colors"
+                                :class="{ 'border-indigo-500 dark:border-indigo-400': code[3] }"
+                                autocomplete="off"
+                            />
+                            <input 
+                                x-ref="digit4"
+                                x-model="code[4]"
+                                @input="handleInput(4, $event)"
+                                @keydown="handleKeydown(4, $event)"
+                                @paste="handlePaste(4, $event)"
+                                @keyup="handleInput(4, $event)"
+                                type="tel" 
+                                inputmode="numeric" 
+                                pattern="[0-9]*"
+                                autocomplete="one-time-code"
+                                maxlength="1"
+                                class="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:outline-none transition-colors"
+                                :class="{ 'border-indigo-500 dark:border-indigo-400': code[4] }"
+                                autocomplete="off"
+                            />
+                            <input 
+                                x-ref="digit5"
+                                x-model="code[5]"
+                                @input="handleInput(5, $event)"
+                                @keydown="handleKeydown(5, $event)"
+                                @paste="handlePaste(5, $event)"
+                                @keyup="handleInput(5, $event)"
+                                type="tel" 
+                                inputmode="numeric" 
+                                pattern="[0-9]*"
+                                autocomplete="one-time-code"
+                                maxlength="1"
+                                class="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:outline-none transition-colors"
+                                :class="{ 'border-indigo-500 dark:border-indigo-400': code[5] }"
+                                autocomplete="off"
+                            />
+                        </div>
+                        
+                        <!-- Hidden input for form submission -->
+                        <input type="hidden" name="code" x-ref="hiddenCode" :value="getFullCode()" />
+                        
                         @error('code')
-                            <p class="text-sm text-red-600 dark:text-red-400 mt-2">{{ $message }}</p>
+                            <p class="text-sm text-red-600 dark:text-red-400 mt-2 text-center">{{ $message }}</p>
                         @enderror
                     </div>
 
