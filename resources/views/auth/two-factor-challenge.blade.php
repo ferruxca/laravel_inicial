@@ -43,7 +43,6 @@
                                 @input="handleInput(0, $event)"
                                 @keydown="handleKeydown(0, $event)"
                                 @paste="handlePaste(0, $event)"
-                                @keyup="handleInput(0, $event)"
                                 type="tel" 
                                 inputmode="numeric" 
                                 pattern="[0-9]*"
@@ -60,7 +59,6 @@
                                 @input="handleInput(1, $event)"
                                 @keydown="handleKeydown(1, $event)"
                                 @paste="handlePaste(1, $event)"
-                                @keyup="handleInput(1, $event)"
                                 type="tel" 
                                 inputmode="numeric" 
                                 pattern="[0-9]*"
@@ -76,7 +74,6 @@
                                 @input="handleInput(2, $event)"
                                 @keydown="handleKeydown(2, $event)"
                                 @paste="handlePaste(2, $event)"
-                                @keyup="handleInput(2, $event)"
                                 type="tel" 
                                 inputmode="numeric" 
                                 pattern="[0-9]*"
@@ -86,14 +83,13 @@
                                 :class="{ 'border-indigo-500 dark:border-indigo-400': code[2] }"
                                 autocomplete="off"
                             />
-                            <span class="text-lg font-semibold text-gray-600 dark:text-gray-400">-</span>
+                            <span class="text-lg h-12 w-12 flex items-center justify-center font-semibold text-gray-600 dark:text-gray-400">-</span>
                             <input 
                                 x-ref="digit3"
                                 x-model="code[3]"
                                 @input="handleInput(3, $event)"
                                 @keydown="handleKeydown(3, $event)"
                                 @paste="handlePaste(3, $event)"
-                                @keyup="handleInput(3, $event)"
                                 type="tel" 
                                 inputmode="numeric" 
                                 pattern="[0-9]*"
@@ -109,7 +105,6 @@
                                 @input="handleInput(4, $event)"
                                 @keydown="handleKeydown(4, $event)"
                                 @paste="handlePaste(4, $event)"
-                                @keyup="handleInput(4, $event)"
                                 type="tel" 
                                 inputmode="numeric" 
                                 pattern="[0-9]*"
@@ -125,7 +120,6 @@
                                 @input="handleInput(5, $event)"
                                 @keydown="handleKeydown(5, $event)"
                                 @paste="handlePaste(5, $event)"
-                                @keyup="handleInput(5, $event)"
                                 type="tel" 
                                 inputmode="numeric" 
                                 pattern="[0-9]*"
@@ -182,7 +176,14 @@
     </div>
 
     <script>
-        // Verifica si Alpine ya está cargado
+       // Al pulsar enter en la última casilla enviar el formulario
+       document.addEventListener('keydown', function(event) {
+           if (event.key === 'Enter') {
+               event.preventDefault();
+               document.querySelector('form').submit();
+           }
+       });
+
         function initializeTwoFactorAuth() {
             // Si Alpine está disponible, registra el componente
             if (window.Alpine) {
