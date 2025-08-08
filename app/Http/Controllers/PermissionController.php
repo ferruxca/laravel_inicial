@@ -10,18 +10,23 @@ use Spatie\Permission\Models\Role;
 class PermissionController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
         if (!auth()->user()->can('permission.index')) {
             abort(403);
         }
 
-        $permissions = Permission::orderBy('name')
-            ->paginate(10);
+        $search = $request->get('search');
+        $permissions = Permission::when($search, function ($query, $search) {
+                return $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(10)
+            ->appends($request->query());
 
         return view('pages.permissions.index', [
             'permissions' => $permissions,
-            //'groups' => Permission::distinct()->pluck('group')
+            'search' => $search,
         ]);
     }
 

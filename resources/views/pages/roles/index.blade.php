@@ -48,15 +48,30 @@
                     {{ __('Roles List') }}
                 </h2>
                 <div class="relative">
-                    <input type="text" placeholder="{{ __('Search roles...') }}" 
-                           class="pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                           x-data
-                           x-on:input.debounce.300ms="$dispatch('search', { search: $event.target.value })">
-                    <div class="absolute left-3 top-2.5 text-gray-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
+                    <form method="GET" action="{{ route('roles.index') }}" class="relative">
+                        <input type="text" 
+                               name="search" 
+                               value="{{ $search ?? '' }}"
+                               placeholder="{{ __('Search permissions...') }}" 
+                               class="pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white w-64"
+                               x-data="{ search: '{{ $search ?? '' }}' }"
+                               x-model="search"
+                               x-on:input.debounce.500ms="$el.form.submit()">
+                        <div class="absolute left-3 top-2.5 text-gray-400 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        @if($search)
+                        <button type="button" 
+                                class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                onclick="document.querySelector('input[name=search]').value = ''; this.closest('form').submit();">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        @endif
+                    </form>
                 </div>
             </div>
 
@@ -67,15 +82,15 @@
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sticky left-0 bg-gray-50 dark:bg-gray-700 z-10">
+                                <th scope="col" class="px-6 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sticky left-0 bg-gray-50 dark:bg-gray-700 z-10">
                                     {{ __('Permissions') }}
                                 </th>
                                 @foreach($roles as $role)
-                                    <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider min-w-[120px]">
+                                    <th scope="col" class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider min-w-[120px]">
                                         <div class="flex flex-col items-center">
                                             @can('role.edit', $role)
                                             <a href="{{ route('roles.edit', $role) }}"> 
-                                            <div class="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 mb-1">
+                                            <div class="flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 mb-1">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                                                 </svg>
@@ -102,7 +117,7 @@
                                 </tr>
                                 @foreach($groupPermissions as $permission)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                        <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-white dark:bg-gray-800 z-10">
+                                        <td class="px-6 py-2 whitespace-nowrap sticky left-0 bg-white dark:bg-gray-800 z-10">
                                             <div class="text-sm font-medium text-gray-900 dark:text-white">
                                                 {{ $permission->name }}
                                             </div>
@@ -113,11 +128,11 @@
                                             @endif
                                         </td>
                                         @foreach($roles as $role)
-                                            <td class="px-4 py-4 text-center">
+                                            <td class="px-4 py-2 text-center">
                                                 @can('role.edit')
                                                     <label class="inline-flex items-center cursor-pointer">
                                                         <input type="checkbox" 
-                                                            @if(auth()->user()->hasRole('admin') && $role->id == auth()->user()->id) disabled="disabled" @endif
+                                                            @if($role->id == 1) disabled="disabled" @endif
                                                             class="permission-checkbox form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
                                                             data-role-id="{{ $role->id }}"
                                                             data-permission-id="{{ $permission->id }}"

@@ -13,7 +13,7 @@
 
             <!-- Formulario -->
             <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-                <form method="POST" action="{{ route('permissions.update', $permission) }}">
+                <form method="POST" action="{{ route('permissions.update', $permission) }}" class="p-6">
                     @csrf
                     @method('PUT')
                     

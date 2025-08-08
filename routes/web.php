@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('roles', RoleController::class)->except(['show']);
     Route::post('roles/{role}/toggle-permission', [RoleController::class, 'togglePermission'])->name('roles.toggle-permission');
     
+    Route::get('roles/search', [RoleController::class, 'search'])->name('roles.search');
     // Permissions Routes
     Route::resource('permissions', PermissionController::class)->except(['show']);
 });

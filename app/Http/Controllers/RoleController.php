@@ -13,7 +13,7 @@ class RoleController extends Controller
     /**
      * Display a listing of roles.
      */
-    public function index()
+    public function index(Request $request)
     {
         if (!auth()->user()->can('role.index')) {
             abort(403);
@@ -21,10 +21,17 @@ class RoleController extends Controller
         
         
         $roles = Role::with('permissions')->get();
-        $permissions = Permission::orderBy('name')->paginate(10);
-        //$permissions = Permission::all()->groupBy('group');
+        // $permissions = Permission::orderBy('name')->paginate(10);
+
+        $search = $request->get('search');
+        $permissions = Permission::when($search, function ($query, $search) {
+                return $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(10)
+            ->appends($request->query());
         
-        return view('pages.roles.index', compact('roles', 'permissions'));
+        return view('pages.roles.index', compact('roles', 'permissions', 'search'));
     }
 
     /**

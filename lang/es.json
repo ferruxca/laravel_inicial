@@ -351,5 +351,12 @@
     "Update the user details": "Actualizar los detalles del usuario",
     "Edit User": "Editar usuario",
     "Verified": "Verificado",
-    "Not Verified": "No verificado"
+    "Not Verified": "No verificado",
+    "Search permissions...": "Buscar permisos...",
+    "Create New Permission": "Crear nuevo permiso",
+    "Add a new permission to your system": "Agregar un nuevo permiso a tu sistema",
+    "Permission Name": "Nombre del permiso",
+    "Group": "Grupo",
+    "Update the permission details": "Actualizar los detalles del permiso",
+    "Assign Permissions": "Asignar Permisos"
 }
