@@ -22,6 +22,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Clear 2FA session on logout
+        \Illuminate\Support\Facades\Event::listen(
+            \Illuminate\Auth\Events\Logout::class,
+            function ($event) {
+                session()->forget('two_factor_confirmed_at');
+            }
+        );
     }
 }

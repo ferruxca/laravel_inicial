@@ -11,10 +11,10 @@ Route::get('/', function () {
 })->name('home');
 
 Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'two-factor'])
     ->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'two-factor'])->group(function () {
 
     // Users Routes
     Route::resource('users', UserController::class)->except(['show']);
@@ -29,11 +29,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
+    // Two Factor Authentication Routes
+    Route::get('two-factor-challenge', [App\Http\Controllers\TwoFactorController::class, 'create'])
+        ->name('two-factor.challenge');
+    Route::post('two-factor-challenge', [App\Http\Controllers\TwoFactorController::class, 'store'])
+        ->name('two-factor.store');
+    
     Route::redirect('settings', 'settings/profile');
 
-    Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
-    Volt::route('settings/password', 'settings.password')->name('settings.password');
-    Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
+    Volt::route('settings/profile', 'settings.profile')->name('settings.profile')->middleware('two-factor');
+    Volt::route('settings/password', 'settings.password')->name('settings.password')->middleware('two-factor');
+    Volt::route('settings/two-factor', 'settings.two-factor')->name('settings.two-factor')->middleware('two-factor');
+    Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance')->middleware('two-factor');
 });
 
 require __DIR__.'/auth.php';

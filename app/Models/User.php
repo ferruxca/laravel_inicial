@@ -35,6 +35,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -47,6 +49,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'two_factor_confirmed_at' => 'datetime',
+            'two_factor_recovery_codes' => 'encrypted:array',
         ];
     }
 
@@ -65,5 +69,34 @@ class User extends Authenticatable implements MustVerifyEmail
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Determine if two-factor authentication is enabled.
+     */
+    public function hasEnabledTwoFactorAuthentication(): bool
+    {
+        return !is_null($this->two_factor_secret) && !is_null($this->two_factor_confirmed_at);
+    }
+
+    /**
+     * Get the two-factor authentication recovery codes.
+     */
+    public function recoveryCodes(): array
+    {
+        return $this->two_factor_recovery_codes ?? [];
+    }
+
+    /**
+     * Replace the given recovery code with a new one in the user's stored codes.
+     */
+    public function replaceRecoveryCode(string $code): void
+    {
+        $this->forceFill([
+            'two_factor_recovery_codes' => collect($this->recoveryCodes())
+                ->reject($code)
+                ->push(\Illuminate\Support\Str::random(10).'-'.\Illuminate\Support\Str::random(10))
+                ->all(),
+        ])->save();
     }
 }
